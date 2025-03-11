@@ -1,5 +1,7 @@
 # RSS Feeder
 
+🌍 **Languages:** [English](README.md) | [繁體中文](README.zh-TW.md)
+
 ## Description
 
 This is a simple RSS feeder that fetches the latest news from the source and send requests to Discord webhook.
