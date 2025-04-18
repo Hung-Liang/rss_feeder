@@ -62,9 +62,11 @@ def start_tmux_session(rss_url, webhook_url, history_file):
 
 
 if __name__ == "__main__":
-    for config in configs:
-        webhook_url = config["web_hook"]
-        rss_url = config["rss_url"]
-        history_file = config["history_file"]
+    while True:
+        for config in configs:
+            webhook_url = config["web_hook"]
+            rss_url = config["rss_url"]
+            history_file = config["history_file"]
 
-        start_tmux_session(rss_url, webhook_url, history_file)
+            start_tmux_session(rss_url, webhook_url, history_file)
+        time.sleep(3600)
