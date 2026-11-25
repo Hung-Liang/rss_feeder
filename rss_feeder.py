@@ -1,12 +1,9 @@
 import json
-import sys
 import time
 
 import os
 import feedparser
-import pytz
 import requests
-from apscheduler.schedulers.blocking import BlockingScheduler
 
 
 def load_processed(history_file):
@@ -115,22 +112,3 @@ def rss_feeder(webhook_url, rss_url, history_file):
     # Only keep IDs still visible on the feed so history stays bounded
     save_processed((processed & current_ids) | new_processed, history_file)
 
-
-if __name__ == "__main__":
-    webhook_url = sys.argv[1]
-    rss_url = sys.argv[2]
-    history_file = sys.argv[3]
-    timezone = pytz.timezone('Asia/Taipei')
-
-    scheduler = BlockingScheduler(timezone=timezone)
-    scheduler.add_job(
-        rss_feeder, "cron", args=[webhook_url, rss_url, history_file], minute=0
-    )
-    # run every 3 minutes for testing
-    # scheduler.add_job(
-    #     rss_feeder,
-    #     "cron",
-    #     args=[webhook_url, rss_url, history_file],
-    #     minute="*/3",
-    # )
-    scheduler.start()

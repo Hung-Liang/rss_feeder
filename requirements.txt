@@ -1,4 +1,2 @@
-APScheduler==3.6.3
 feedparser==6.0.11
-pytz==2023.3
 requests==2.32.4
