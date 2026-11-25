@@ -1,5 +1,6 @@
 import json
 import sys
+import time
 
 import os
 import feedparser
@@ -34,20 +35,6 @@ def save_processed(processed, history_file):
         json.dump(list(processed), f)
 
 
-def remove_old_processed(processed):
-    """Remove old entries from the processed set.
-
-    Args:
-        processed (set): The set of processed entry IDs.
-
-    Returns:
-        set: The updated set of processed entry IDs.
-    """
-    if len(processed) > 100:
-        processed = processed[-50:]
-    return processed
-
-
 def fetch_rss(rss_url):
     """Fetch the RSS feed and return the entries.
 
@@ -70,8 +57,7 @@ def keep_recent_entries(entries, n=10):
     Returns:
         list: The most recent entries.
     """
-    results = entries[:n] if len(entries) > n else entries
-    return list(reversed(results))
+    return entries[:n][::-1]
 
 
 def send_to_discord(entry, webhook_url, retries=0):
@@ -81,18 +67,26 @@ def send_to_discord(entry, webhook_url, retries=0):
         entry (dict): The entry to send.
         webhook_url (str): The URL of the Discord webhook.
         retries (int): The number of retries.
+
+    Returns:
+        bool: True if posted, False once retries are exhausted.
     """
     data = {
         "content": f"[{entry.title}]({entry.link})",
     }
-    response = requests.post(webhook_url, json=data)
-    if response.status_code == 204:
-        print("Posted to Discord successfully.")
-    else:
+    try:
+        response = requests.post(webhook_url, json=data, timeout=10)
+        if response.status_code == 204:
+            print("Posted to Discord successfully.")
+            return True
         print(f"Failed to post to Discord: {response.status_code}")
-        if retries < 5:
-            print("Retrying...")
-            send_to_discord(entry, webhook_url, retries + 1)
+    except requests.RequestException as e:
+        print(f"Failed to post to Discord: {e}")
+    if retries < 5:
+        print("Retrying...")
+        time.sleep(2 ** retries)
+        return send_to_discord(entry, webhook_url, retries + 1)
+    return False
 
 
 def rss_feeder(webhook_url, rss_url, history_file):
@@ -107,16 +101,19 @@ def rss_feeder(webhook_url, rss_url, history_file):
     new_processed = set()
     entries = fetch_rss(rss_url)
     entries = keep_recent_entries(entries, 10)
+    # feedparser returns no entries on network failure; saving now would wipe history
+    if not entries:
+        return
 
+    current_ids = set()
     for entry in entries:
         entry_id = entry.get("guid", entry.link)
-        if entry_id not in processed:
-            send_to_discord(entry, webhook_url)
+        current_ids.add(entry_id)
+        if entry_id not in processed and send_to_discord(entry, webhook_url):
             new_processed.add(entry_id)
 
-    processed.update(new_processed)
-    processed = remove_old_processed(processed)
-    save_processed(processed, history_file)
+    # Only keep IDs still visible on the feed so history stays bounded
+    save_processed((processed & current_ids) | new_processed, history_file)
 
 
 if __name__ == "__main__":
