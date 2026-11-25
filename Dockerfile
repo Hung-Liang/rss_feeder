@@ -9,10 +9,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends tmux\
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py config.py rss_feeder.py run.sh ./
+COPY main.py config.py rss_feeder.py ./
 # COPY /configs /app/configs
 
-# RUN chmod +x run.sh
 
 CMD ["python", "main.py"]
 

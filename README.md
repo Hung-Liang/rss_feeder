@@ -16,12 +16,12 @@ configs = [
     {
         "web_hook": "",
         "rss_url": "",
-        "history_file": "",
+        "history_file": "/data/feed1.json",
     },
     {
         "web_hook": "",
         "rss_url": "",
-        "history_file": "",
+        "history_file": "/data/feed2.json",
     },
 ]
 
@@ -30,7 +30,7 @@ configs = [
 - the configs list can be extended to add more sources
 - `web_hook` is the discord webhook url
 - `rss_url` is the rss feed url
-- `history_file` is the file that stores the history of the news
+- `history_file` is the file that stores the history of the news; it must be under `/data/` (the `rss_feeder_data` volume), otherwise the history is lost on redeploy and old news is re-sent
 - require docker installed on your machine
 
 ## Usage

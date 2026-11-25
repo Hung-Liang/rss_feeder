@@ -14,6 +14,7 @@ docker run -d \
   --log-driver=json-file \
   --log-opt max-size=10m \
   --log-opt max-file=3 \
+  -v rss_feeder_data:/data \
   rss_feeder 
 
 echo "Script execution completed successfully!"

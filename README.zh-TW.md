@@ -14,12 +14,12 @@ configs = [
     {
         "web_hook": "",
         "rss_url": "",
-        "history_file": "",
+        "history_file": "/data/feed1.json",
     },
     {
         "web_hook": "",
         "rss_url": "",
-        "history_file": "",
+        "history_file": "/data/feed2.json",
     },
 ]
 ```
@@ -27,7 +27,7 @@ configs = [
 3. `configs` 陣列可擴充，以新增更多來源  
 4. `web_hook` 是 Discord Webhook 的 URL  
 5. `rss_url` 是 RSS 訂閱源的 URL  
-6. `history_file` 是儲存新聞歷史記錄的檔案  
+6. `history_file` 是儲存新聞歷史記錄的檔案，必須放在 `/data/` 底下（`rss_feeder_data` volume），否則重新部署後歷史會遺失並重發舊文章  
 7. 需要安裝 Docker  
 
 ## 使用方式
